@@ -3,10 +3,6 @@ import 'package:path/path.dart';
 import 'package:test1/models/todo_model.dart';
 
 class AppDatabase {
-  static final AppDatabase _instance = AppDatabase._internal();
-  factory AppDatabase() => _instance;
-  AppDatabase._internal();
-
   Database? _database;
 
   Future<Database> get database async {
