@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test1/models/todo_model.dart';
 import 'package:test1/presentation/bloc/todo_cubit.dart';
-import 'package:test1/presentation/screen/edit_screen.dart';
 
 class TodoItem extends StatelessWidget {
   final TodoModel item;
@@ -35,7 +34,7 @@ class TodoItem extends StatelessWidget {
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: item.checkBox ? Color(0xFF81C784) : Color(0xFFB0BEC5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,7 +42,10 @@ class TodoItem extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.title, style: Theme.of(context).textTheme.titleMedium,),
+                Text(
+                  item.title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 item.description == ""
                     ? SizedBox()
                     : SizedBox(

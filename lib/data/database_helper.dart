@@ -56,6 +56,7 @@ class AppDatabase {
   Future<int> deleteTodos(String id) async {
     Database db = await database;
     return await db.delete('todos', where: 'id = ?', whereArgs: [id]);
+
   }
 
   Future<int> updateTodos(TodoModel todo) async {

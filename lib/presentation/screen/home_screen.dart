@@ -15,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  bool _isSortedAscending = true;
+
+
   @override
   void initState() {
     super.initState();
@@ -74,7 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSorter(){
     return ElevatedButton(
       onPressed: () {
-        context.read<TodoCubit>().sortedTodos();
+        context.read<TodoCubit>().sortedTodos(_isSortedAscending);
+        _isSortedAscending = !_isSortedAscending;
+
       },
       child: Text("Sort Checklist"),
     );

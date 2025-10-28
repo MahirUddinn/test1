@@ -12,8 +12,7 @@ class TestApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF81C784))
       ),
       home: BlocProvider(
         create: (context) => TodoCubit(AppDatabase()),

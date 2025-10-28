@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
-
-@immutable
 
 class TodoModel {
   final String id;

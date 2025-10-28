@@ -33,7 +33,7 @@ class TodoCubit extends Cubit<TodoState> {
       emit(
         state.copyWith(
           status: TodoStatus.loaded,
-          todos: [newTodo, ...state.todos],
+          todos: [...state.todos, newTodo],
         ),
       );
     } catch (e) {
@@ -49,6 +49,7 @@ class TodoCubit extends Cubit<TodoState> {
   void deleteTodos(String id) async {
     try {
       await databaseHelper.deleteTodos(id);
+      loadTodos();
     } catch (e) {
       emit(
         state.copyWith(
@@ -66,11 +67,7 @@ class TodoCubit extends Cubit<TodoState> {
         final updatedTodos = state.todos.map((n) {
           return n.id == todo.id ? todo : n;
         }).toList();
-        emit(
-          state.copyWith(
-            todos: updatedTodos,
-          ),
-        );
+        emit(state.copyWith(todos: updatedTodos));
       }
     } catch (e) {
       emit(
@@ -82,14 +79,18 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  void sortedTodos() {
+  void sortedTodos(bool ascending) {
     emit(state.copyWith(status: TodoStatus.loading));
 
     try {
-      final uncheckedTodos = state.todos.where((todo) => !todo.checkBox).toList();
+      final uncheckedTodos = state.todos
+          .where((todo) => !todo.checkBox)
+          .toList();
       final checkedTodos = state.todos.where((todo) => todo.checkBox).toList();
 
-      final combinedList = [...uncheckedTodos, ...checkedTodos];
+      final combinedList = ascending
+          ? [...checkedTodos, ...uncheckedTodos]
+          : [...uncheckedTodos, ...checkedTodos];
 
       emit(state.copyWith(todos: combinedList, status: TodoStatus.loaded));
     } catch (e) {
