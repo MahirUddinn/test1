@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:test1/models/todo_model.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test1/presentation/bloc/todo_cubit.dart';
 
-class AddScreen extends StatefulWidget {
-  const AddScreen({super.key});
+class EditScreen extends StatefulWidget {
+  const EditScreen({super.key, required this.todo});
+  final TodoModel todo;
 
   @override
-  State<AddScreen> createState() => _AddScreenState();
+  State<EditScreen> createState() => _EditScreenState();
 }
 
-class _AddScreenState extends State<AddScreen> {
+class _EditScreenState extends State<EditScreen> {
   final _formKey = GlobalKey<FormState>();
   final formatter = DateFormat.yMd();
   final _textController = TextEditingController();
@@ -26,7 +27,7 @@ class _AddScreenState extends State<AddScreen> {
       return;
     } else {
       final todo = TodoModel(
-        id: uuid.v4(),
+        id: widget.todo.id,
         title: _textController.text,
         description: _descriptionController.text.isEmpty
             ? ""
@@ -34,11 +35,9 @@ class _AddScreenState extends State<AddScreen> {
         date: _selectedDate == null
             ? ""
             : _selectedDate.toString().substring(0, 10),
-        checkBox: true,
+        checkBox: false,
       );
-
-      context.read<TodoCubit>().addTodos(todo);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(todo);
     }
   }
 
@@ -55,6 +54,13 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _textController.text = widget.todo.title;
+    _descriptionController.text = widget.todo.description;
+  }
+
+  @override
   void dispose() {
     super.dispose();
     _textController.dispose();
@@ -64,7 +70,7 @@ class _AddScreenState extends State<AddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add Task")),
+      appBar: AppBar(title: Text("Edit Task")),
       body: Container(
         padding: EdgeInsets.all(8),
         child: Form(
@@ -105,9 +111,10 @@ class _AddScreenState extends State<AddScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      (_selectedDate == null)
+                      widget.todo.date == ""
                           ? Text("Select a Date")
-                          : Text(formatter.format(_selectedDate!)),
+                          : Text(widget.todo.date),
+
                       IconButton(
                         onPressed: _presentDayPicker,
                         icon: Icon(Icons.calendar_month),
@@ -121,7 +128,7 @@ class _AddScreenState extends State<AddScreen> {
                         context,
                       ).colorScheme.tertiaryContainer,
                     ),
-                    child: Text("Submit"),
+                    child: Text("Update"),
                   ),
                 ],
               ),
