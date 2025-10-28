@@ -30,12 +30,9 @@ class AppDatabase {
     ''');
   }
 
-  Future<int> addTodo(TodoModel todo) async {
-    Database db = await database;
-    return await db.insert(
-      'todos',
-      todo.toMap(),
-    );
+  Future<void> addTodo(TodoModel todo) async {
+    final db = await database;
+    await db.insert('todos', todo.toMap());
   }
 
   Future<List<TodoModel>> getTodos() async {

@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  bool _isSortedAscending = true;
+  bool _isSortedAscending = false;
 
 
   @override

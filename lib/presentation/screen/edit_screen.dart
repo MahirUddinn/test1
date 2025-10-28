@@ -39,7 +39,7 @@ class _EditScreenState extends State<EditScreen> {
     final isDate = await showDatePicker(
       context: context,
       firstDate: DateTime(now.year - 1, now.month, now.day),
-      lastDate: now,
+      lastDate: DateTime(now.year + 1, now.month, now.day),
     );
     setState(() {
       _selectedDate = isDate;

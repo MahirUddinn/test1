@@ -26,14 +26,12 @@ class TodoCubit extends Cubit<TodoState> {
 
   void addTodos(TodoModel todo) async {
     emit(state.copyWith(status: TodoStatus.loading));
-
     try {
-      final id = await databaseHelper.addTodo(todo);
-      final newTodo = todo.copyWith(id: id.toString());
+      await databaseHelper.addTodo(todo);
       emit(
         state.copyWith(
           status: TodoStatus.loaded,
-          todos: [...state.todos, newTodo],
+          todos: [...state.todos, todo],
         ),
       );
     } catch (e) {

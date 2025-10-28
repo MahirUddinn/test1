@@ -41,7 +41,7 @@ class _AddScreenState extends State<AddScreen> {
     final isDate = await showDatePicker(
       context: context,
       firstDate: DateTime(now.year - 1, now.month, now.day),
-      lastDate: now,
+      lastDate: DateTime(now.year + 1, now.month, now.day),
     );
     setState(() {
       _selectedDate = isDate;
