@@ -68,7 +68,12 @@ class TodoCubit extends Cubit<TodoState> {
         final updatedTodos = state.todos.map((n) {
           return n.id == todo.id ? todo : n;
         }).toList();
-        emit(state.copyWith(todos: updatedTodos));
+        emit(
+          state.copyWith(
+            todos: updatedTodos,
+            // status: TodoStatus.loaded
+          ),
+        );
       }
     } catch (e) {
       emit(

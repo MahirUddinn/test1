@@ -34,7 +34,7 @@ class _AddScreenState extends State<AddScreen> {
         date: _selectedDate == null
             ? ""
             : _selectedDate.toString().substring(0, 10),
-        checkBox: true,
+        checkBox: false,
       );
 
       context.read<TodoCubit>().addTodos(todo);

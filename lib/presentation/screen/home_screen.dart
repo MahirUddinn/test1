@@ -22,10 +22,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onEdit(TodoModel item) async {
-    final TodoModel todo = await Navigator.of(
+    final TodoModel? todo = await Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (context) => EditScreen(todo: item)));
-    context.read<TodoCubit>().updateNote(todo);
+    ).push(
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: this.context.read<TodoCubit>(),
+          child: EditScreen(todo: item),
+        ),
+      ),
+    );
+    if (todo != null) {
+      context.read<TodoCubit>().updateNote(todo);
+    }
   }
 
   void onCheck(item) {
@@ -52,9 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
           return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         if (state.status == TodoStatus.loaded) {
-          if (state.todos.isEmpty) {
-            return Center(child: Text("No data found"));
-          }
           return Scaffold(
             appBar: AppBar(
               title: Text("My ToDos"),
@@ -62,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildSorter()
               ],
             ),
-            body: _buildList(state.todos),
+            body: state.todos.isEmpty?Center(child: Text("No data found"),):_buildList(state.todos),
             floatingActionButton: _buildFloatingActionButton(),
           );
         }

@@ -23,7 +23,7 @@ class TodoItem extends StatelessWidget {
       onDismissed: (direction) {
         context.read<TodoCubit>().deleteTodos(item.id);
       },
-      background:Container(
+      background: Container(
         color: Colors.red,
         alignment: Alignment.centerRight,
         padding: EdgeInsets.only(right: 20.0),
@@ -43,14 +43,16 @@ class TodoItem extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.title),
-                SizedBox(
-                  width: 250,
-                  child: Text(
-                    item.description,
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ),
+                Text(item.title, style: Theme.of(context).textTheme.titleMedium,),
+                item.description == ""
+                    ? SizedBox()
+                    : SizedBox(
+                        width: 250,
+                        child: Text(
+                          item.description,
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
               ],
             ),
             Column(
