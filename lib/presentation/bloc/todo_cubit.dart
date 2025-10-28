@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:test1/data/database_helper.dart';
 import 'package:test1/models/todo_model.dart';
 
@@ -54,14 +53,13 @@ class TodoCubit extends Cubit<TodoState> {
       emit(
         state.copyWith(
           status: TodoStatus.error,
-          errorMessage: "Failed to add todo: $e",
+          errorMessage: "Failed to delete todo: $e",
         ),
       );
     }
   }
 
   void updateNote(TodoModel todo) async {
-    // emit(state.copyWith(status: TodoStatus.loading));
     try {
       int updatedId = await databaseHelper.updateTodos(todo);
       if (updatedId != 0) {
@@ -71,7 +69,6 @@ class TodoCubit extends Cubit<TodoState> {
         emit(
           state.copyWith(
             todos: updatedTodos,
-            // status: TodoStatus.loaded
           ),
         );
       }
@@ -85,22 +82,14 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  void sortedTodos() async {
+  void sortedTodos() {
     emit(state.copyWith(status: TodoStatus.loading));
 
     try {
-      List<TodoModel> uncheckedTodos = [];
-      List<TodoModel> checkedTodos = [];
+      final uncheckedTodos = state.todos.where((todo) => !todo.checkBox).toList();
+      final checkedTodos = state.todos.where((todo) => todo.checkBox).toList();
 
-      for (var element in state.todos) {
-        if (element.checkBox) {
-          checkedTodos.add(element);
-        } else {
-          uncheckedTodos.add(element);
-        }
-      }
-
-      List<TodoModel> combinedList = [...uncheckedTodos, ...checkedTodos];
+      final combinedList = [...uncheckedTodos, ...checkedTodos];
 
       emit(state.copyWith(todos: combinedList, status: TodoStatus.loaded));
     } catch (e) {

@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
+
+@immutable
 
 class TodoModel {
   final String id;
@@ -9,7 +12,7 @@ class TodoModel {
   final String date;
   final bool checkBox;
 
-  TodoModel({
+  const TodoModel({
     required this.id,
     required this.title,
     required this.description,
@@ -26,16 +29,6 @@ class TodoModel {
       "checkBox": checkBox ? 1:0,
     };
   }
-
-  // factory TodoModel.fromMap(Map<String, dynamic> map) {
-  //   return TodoModel(
-  //     id: map['id'],
-  //     title: map['title'],
-  //     description: map['description'],
-  //     date: map['date'],
-  //     checkBox: map['checkBox'],
-  //   );
-  // }
 
   TodoModel copyWith({
     String? id,

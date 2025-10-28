@@ -21,13 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<TodoCubit>().loadTodos();
   }
 
-  void onEdit(TodoModel item) async {
+  void onEdit(TodoModel item) async{
     final TodoModel? todo = await Navigator.of(
       context,
     ).push(
       MaterialPageRoute(
         builder: (context) => BlocProvider.value(
-          value: this.context.read<TodoCubit>(),
+          value: context.read<TodoCubit>(),
           child: EditScreen(todo: item),
         ),
       ),
@@ -38,13 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void onCheck(item) {
-    final todo = TodoModel(
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      date: item.date,
-      checkBox: !item.checkBox,
-    );
+    final todo = item.copyWith(checkBox: !item.checkBox);
     context.read<TodoCubit>().updateNote(todo);
   }
 
@@ -89,11 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      onPressed: () async {
-        await Navigator.of(context).push(
+      onPressed: () {
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) => BlocProvider.value(
-              value: BlocProvider.of<TodoCubit>(context),
+              value: context.read<TodoCubit>(),
               child: AddScreen(),
             ),
           ),

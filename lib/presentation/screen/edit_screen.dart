@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test1/models/todo_model.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/presentation/bloc/todo_cubit.dart';
 
 class EditScreen extends StatefulWidget {
   const EditScreen({super.key, required this.todo});
@@ -20,25 +18,20 @@ class _EditScreenState extends State<EditScreen> {
   DateTime? _selectedDate;
 
   void _submit() {
-    if (_textController.text.isEmpty) {
+    if (_textController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("You must have a title at least")));
       return;
-    } else {
-      final todo = TodoModel(
-        id: widget.todo.id,
-        title: _textController.text,
-        description: _descriptionController.text.isEmpty
-            ? ""
-            : _descriptionController.text,
-        date: _selectedDate == null
-            ? ""
-            : _selectedDate.toString().substring(0, 10),
-        checkBox: false,
-      );
-      Navigator.of(context).pop(todo);
     }
+    final todo = TodoModel(
+      id: widget.todo.id,
+      title: _textController.text,
+      description: _descriptionController.text,
+      date: _selectedDate != null ? formatter.format(_selectedDate!) : widget.todo.date,
+      checkBox: widget.todo.checkBox,
+    );
+    Navigator.of(context).pop(todo);
   }
 
   void _presentDayPicker() async {

@@ -12,34 +12,28 @@ class AddScreen extends StatefulWidget {
 }
 
 class _AddScreenState extends State<AddScreen> {
-  final _formKey = GlobalKey<FormState>();
   final formatter = DateFormat.yMd();
   final _textController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
 
   void _submit() {
-    if (_textController.text.isEmpty) {
+    if (_textController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("You must have a title at least")));
       return;
-    } else {
-      final todo = TodoModel(
-        id: uuid.v4(),
-        title: _textController.text,
-        description: _descriptionController.text.isEmpty
-            ? ""
-            : _descriptionController.text,
-        date: _selectedDate == null
-            ? ""
-            : _selectedDate.toString().substring(0, 10),
-        checkBox: false,
-      );
-
-      context.read<TodoCubit>().addTodos(todo);
-      Navigator.of(context).pop();
     }
+    final todo = TodoModel(
+      id: uuid.v4(),
+      title: _textController.text,
+      description: _descriptionController.text,
+      date: _selectedDate != null ? formatter.format(_selectedDate!) : "",
+      checkBox: false,
+    );
+
+    context.read<TodoCubit>().addTodos(todo);
+    Navigator.of(context).pop();
   }
 
   void _presentDayPicker() async {
@@ -67,66 +61,45 @@ class _AddScreenState extends State<AddScreen> {
       appBar: AppBar(title: Text("Add Task")),
       body: Container(
         padding: EdgeInsets.all(8),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _textController,
-                maxLength: 50,
-                decoration: const InputDecoration(label: Text("Title")),
-                validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      value.trim().length <= 1 ||
-                      value.trim().length > 50) {
-                    return "ToDo should between 1 and 50 characters";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                maxLength: 100,
-                decoration: const InputDecoration(label: Text("Description")),
-                validator: (value) {
-                  if (value == null ||
-                      value.isEmpty ||
-                      value.trim().length <= 1 ||
-                      value.trim().length > 100) {
-                    return "Description should between 1 and 100 characters";
-                  }
-                  return null;
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      (_selectedDate == null)
-                          ? Text("Select a Date")
-                          : Text(formatter.format(_selectedDate!)),
-                      IconButton(
-                        onPressed: _presentDayPicker,
-                        icon: Icon(Icons.calendar_month),
-                      ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryContainer,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _textController,
+              maxLength: 50,
+              decoration: const InputDecoration(label: Text("Title")),
+            ),
+            TextFormField(
+              controller: _descriptionController,
+              maxLength: 100,
+              decoration: const InputDecoration(label: Text("Description")),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    (_selectedDate == null)
+                        ? Text("Select a Date")
+                        : Text(formatter.format(_selectedDate!)),
+                    IconButton(
+                      onPressed: _presentDayPicker,
+                      icon: Icon(Icons.calendar_month),
                     ),
-                    child: Text("Submit"),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
                   ),
-                ],
-              ),
-            ],
-          ),
+                  child: Text("Submit"),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
