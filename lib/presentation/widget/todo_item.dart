@@ -23,6 +23,12 @@ class TodoItem extends StatelessWidget {
       onDismissed: (direction) {
         context.read<TodoCubit>().deleteTodos(item.id);
       },
+      background:Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: 20.0),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
       key: ValueKey(item.id),
       child: Container(
         margin: EdgeInsets.all(5),

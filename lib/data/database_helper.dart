@@ -47,7 +47,7 @@ class AppDatabase {
           title:maps[index]['title'],
           description: maps[index]['description'],
           date: maps[index]['date'],
-          checkBox: maps[index]['id'] == 1);
+          checkBox: maps[index]['checkBox'] == 1);
     },);
   }
 

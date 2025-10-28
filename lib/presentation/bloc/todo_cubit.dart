@@ -80,29 +80,31 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  // void sortedTodos()async {
-  //   emit(state.copyWith(status: TodoStatus.loading));
-  //   try{
-  //     List<TodoModel> uncheckedTodos = [];
-  //     List<TodoModel> checkedTodos = [];
-  //     for (var element in state.todos) {
-  //       if(element.checkBox){
-  //         uncheckedTodos.add(element);
-  //       }
-  //       else{
-  //         checkedTodos.add(element);
-  //       }
-  //     }
-  //     List<TodoModel> combinedList = [...uncheckedTodos, ...checkedTodos];
-  //     state.copyWith(todos: combinedList, status: TodoStatus.loaded);
-  //   }catch(e){
-  //     emit(
-  //       state.copyWith(
-  //         status: TodoStatus.error,
-  //         errorMessage: "Failed to sort todo: $e",
-  //       ),
-  //     );
-  //   }
-  //
-  // }
+  void sortedTodos() async {
+    emit(state.copyWith(status: TodoStatus.loading));
+
+    try {
+      List<TodoModel> uncheckedTodos = [];
+      List<TodoModel> checkedTodos = [];
+
+      for (var element in state.todos) {
+        if (element.checkBox) {
+          checkedTodos.add(element);
+        } else {
+          uncheckedTodos.add(element);
+        }
+      }
+
+      List<TodoModel> combinedList = [...uncheckedTodos, ...checkedTodos];
+
+      emit(state.copyWith(todos: combinedList, status: TodoStatus.loaded));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: TodoStatus.error,
+          errorMessage: "Failed to sort todos: $e",
+        ),
+      );
+    }
+  }
 }

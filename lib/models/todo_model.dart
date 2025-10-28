@@ -27,6 +27,16 @@ class TodoModel {
     };
   }
 
+  // factory TodoModel.fromMap(Map<String, dynamic> map) {
+  //   return TodoModel(
+  //     id: map['id'],
+  //     title: map['title'],
+  //     description: map['description'],
+  //     date: map['date'],
+  //     checkBox: map['checkBox'],
+  //   );
+  // }
+
   TodoModel copyWith({
     String? id,
     String? title,

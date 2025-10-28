@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/data/temp.dart';
 import 'package:test1/models/todo_model.dart';
 import 'package:test1/presentation/bloc/todo_cubit.dart';
 import 'package:test1/presentation/screen/add_screen.dart';
@@ -44,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<TodoCubit>().loadTodos();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TodoCubit, TodoState>(
@@ -59,20 +59,24 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: Text("My ToDos"),
               actions: [
-                // ElevatedButton(
-                //   onPressed: () {
-                //     context.read<TodoCubit>().sortedTodos();
-                //   },
-                //   child: Text("Sort Checklist"),
-                // ),
+                _buildSorter()
               ],
             ),
-            body: _buildList(state.todos, context),
+            body: _buildList(state.todos),
             floatingActionButton: _buildFloatingActionButton(),
           );
         }
         return Container();
       },
+    );
+  }
+
+  Widget _buildSorter(){
+    return ElevatedButton(
+      onPressed: () {
+        context.read<TodoCubit>().sortedTodos();
+      },
+      child: Text("Sort Checklist"),
     );
   }
 
@@ -93,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildList(List<TodoModel> itemList, BuildContext context) {
+  Widget _buildList(List<TodoModel> itemList) {
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(
