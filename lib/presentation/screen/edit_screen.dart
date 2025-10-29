@@ -34,7 +34,7 @@ class _EditScreenState extends State<EditScreen> {
     Navigator.of(context).pop(todo);
   }
 
-  void _presentDayPicker() async {
+  void _dayPicker() async {
     final now = DateTime.now();
     final isDate = await showDatePicker(
       context: context,
@@ -109,7 +109,7 @@ class _EditScreenState extends State<EditScreen> {
                           : Text(widget.todo.date),
 
                       IconButton(
-                        onPressed: _presentDayPicker,
+                        onPressed: _dayPicker,
                         icon: Icon(Icons.calendar_month),
                       ),
                     ],

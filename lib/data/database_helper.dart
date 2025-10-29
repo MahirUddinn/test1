@@ -37,7 +37,30 @@ class AppDatabase {
 
   Future<List<TodoModel>> getTodos() async {
     Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('todos');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'todos',
+      orderBy: 'rowid DESC',
+    );
+    return [
+      for (final map in maps)
+        TodoModel(
+          id: map['id'],
+          title: map['title'],
+          description: map['description'],
+          date: map['date'],
+          checkBox: map['checkBox'] == 1,
+        ),
+    ];
+  }
+
+  Future<List<TodoModel>> getPaginatedTodos(int limit, int offset) async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'todos',
+      limit: limit,
+      offset: offset,
+      orderBy: 'rowid DESC',
+    );
     return [
       for (final map in maps)
         TodoModel(
@@ -53,7 +76,6 @@ class AppDatabase {
   Future<int> deleteTodos(String id) async {
     Database db = await database;
     return await db.delete('todos', where: 'id = ?', whereArgs: [id]);
-
   }
 
   Future<int> updateTodos(TodoModel todo) async {
@@ -64,5 +86,25 @@ class AppDatabase {
       where: 'id = ?',
       whereArgs: [todo.id],
     );
+  }
+
+  Future<List<TodoModel>> getLastItem() async {
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.query(
+      'your_table_name',
+      orderBy: 'id DESC',
+      limit: 1,
+    );
+
+    return [
+      for (final map in results)
+        TodoModel(
+          id: map['id'],
+          title: map['title'],
+          description: map['description'],
+          date: map['date'],
+          checkBox: map['checkBox'] == 1,
+        ),
+    ];
   }
 }

@@ -9,6 +9,42 @@ class TodoCubit extends Cubit<TodoState> {
 
   TodoCubit(this.databaseHelper) : super(TodoState());
 
+  bool showChecked = true;
+  final int _listSize = 15;
+  int _currentList = 0;
+
+  void loadNextPage() {
+    loadPaginatedTodos(_listSize, _currentList);
+    _currentList++;
+  }
+
+  void loadPaginatedTodos(int limit, int offset) async {
+    if (offset == 0) {
+      emit(state.copyWith(status: TodoStatus.loading));
+    }
+    try {
+      final newTodos = await databaseHelper.getPaginatedTodos(
+        limit,
+        limit * offset,
+      );
+      final updatedTodos = List<TodoModel>.from(state.todos)..addAll(newTodos);
+      emit(state.copyWith(status: TodoStatus.loaded, todos: updatedTodos));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: TodoStatus.error,
+          errorMessage: "Failed to load paginated todo: $e",
+        ),
+      );
+    }
+  }
+
+  void resetPagination() {
+    _currentList = 0;
+    emit(state.copyWith(todos: []));
+    loadNextPage();
+  }
+
   void loadTodos() async {
     emit(state.copyWith(status: TodoStatus.loading));
     try {
@@ -31,7 +67,7 @@ class TodoCubit extends Cubit<TodoState> {
       emit(
         state.copyWith(
           status: TodoStatus.loaded,
-          todos: [...state.todos, todo],
+          todos: [todo, ...state.todos],
         ),
       );
     } catch (e) {
@@ -77,27 +113,26 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  void sortedTodos(bool ascending) {
+  void filteredTodos() async {
     emit(state.copyWith(status: TodoStatus.loading));
 
     try {
-      final uncheckedTodos = state.todos
-          .where((todo) => !todo.checkBox)
-          .toList();
-      final checkedTodos = state.todos.where((todo) => todo.checkBox).toList();
+      final todos = await databaseHelper.getTodos();
+      final uncheckedTodos = todos.where((todo) => !todo.checkBox).toList();
+      final checkedTodos = todos.where((todo) => todo.checkBox).toList();
 
-      final combinedList = ascending
-          ? [...checkedTodos, ...uncheckedTodos]
-          : [...uncheckedTodos, ...checkedTodos];
+      final filteredList = showChecked ? checkedTodos : uncheckedTodos;
 
-      emit(state.copyWith(todos: combinedList, status: TodoStatus.loaded));
+      emit(state.copyWith(todos: filteredList, status: TodoStatus.loaded));
+      showChecked = !showChecked;
     } catch (e) {
       emit(
         state.copyWith(
           status: TodoStatus.error,
-          errorMessage: "Failed to sort todos: $e",
+          errorMessage: "Failed to filter todos: $e",
         ),
       );
     }
   }
+
 }

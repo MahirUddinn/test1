@@ -36,7 +36,7 @@ class _AddScreenState extends State<AddScreen> {
     Navigator.of(context).pop();
   }
 
-  void _presentDayPicker() async {
+  void _dayPicker() async {
     final now = DateTime.now();
     final isDate = await showDatePicker(
       context: context,
@@ -83,7 +83,7 @@ class _AddScreenState extends State<AddScreen> {
                         ? Text("Select a Date")
                         : Text(formatter.format(_selectedDate!)),
                     IconButton(
-                      onPressed: _presentDayPicker,
+                      onPressed: _dayPicker,
                       icon: Icon(Icons.calendar_month),
                     ),
                   ],

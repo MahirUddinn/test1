@@ -15,27 +15,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _scrollController = ScrollController();
 
-  bool _isSortedAscending = false;
-
+  void _loadPaginatedData() {
+    context.read<TodoCubit>().loadNextPage();
+  }
 
   @override
   void initState() {
     super.initState();
-    context.read<TodoCubit>().loadTodos();
+    _scrollController.addListener(_onScroll);
+    _loadPaginatedData();
   }
 
-  void onEdit(TodoModel item) async{
-    final TodoModel? todo = await Navigator.of(
-      context,
-    ).push(
+  void _onScroll() {
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _loadPaginatedData();
+      }
+    });
+  }
+
+  void onEdit(TodoModel item) async {
+    final TodoModel? todo = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => BlocProvider.value(
-          value: context.read<TodoCubit>(),
+        builder: (ctx) => BlocProvider.value(
+          value: BlocProvider.of<TodoCubit>(context),
           child: EditScreen(todo: item),
         ),
       ),
     );
+
     if (todo != null) {
       context.read<TodoCubit>().updateNote(todo);
     }
@@ -50,6 +61,11 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<TodoCubit>().loadTodos();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +78,11 @@ class _HomeScreenState extends State<HomeScreen> {
           return Scaffold(
             appBar: AppBar(
               title: Text("My ToDos"),
-              actions: [
-                _buildSorter()
-              ],
+              actions: [_buildReset(), _buildFilter()],
             ),
-            body: state.todos.isEmpty?Center(child: Text("No data found"),):_buildList(state.todos),
+            body: state.todos.isEmpty
+                ? Center(child: Text("No data found"))
+                : _buildList(state.todos),
             floatingActionButton: _buildFloatingActionButton(),
           );
         }
@@ -75,14 +91,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSorter(){
+  Widget _buildReset() {
+    return TextButton(
+      onPressed: () {
+        context.read<TodoCubit>().loadTodos();
+      },
+      child: Text("Reset"),
+    );
+  }
+
+  Widget _buildFilter() {
     return ElevatedButton(
       onPressed: () {
-        context.read<TodoCubit>().sortedTodos(_isSortedAscending);
-        _isSortedAscending = !_isSortedAscending;
-
+        context.read<TodoCubit>().filteredTodos();
       },
-      child: Text("Sort Checklist"),
+      child: Text("Filter Checklist"),
     );
   }
 
@@ -107,16 +130,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(
-        itemCount: itemList.length,
-        itemBuilder: (context, index) => TodoItem(
-          item: itemList[index],
-          onTapEdit: () {
-            onEdit(itemList[index]);
-          },
-          onTapCheck: () {
-            onCheck(itemList[index]);
-          },
-        ),
+        controller: _scrollController,
+        itemCount: itemList.length + 1,
+        itemBuilder: (context, index) {
+          if (index < itemList.length) {
+            return TodoItem(
+              item: itemList[index],
+              onTapEdit: () => onEdit(itemList[index]),
+              onTapCheck: () => onCheck(itemList[index]),
+            );
+          }
+          return null;
+        },
       ),
     );
   }
