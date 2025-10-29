@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:test1/models/task_model.dart';
 import 'package:test1/models/todo_model.dart';
 
 class AppDatabase {
@@ -28,11 +29,25 @@ class AppDatabase {
         checkBox INTEGER
       )
     ''');
+    await db.execute('''
+      CREATE TABLE tasks(
+        id TEXT PRIMARY KEY,
+        taskId TEXT,
+        title TEXT,
+        description TEXT,
+        checkBox INTEGER
+      )
+    ''');
   }
 
   Future<void> addTodo(TodoModel todo) async {
     final db = await database;
     await db.insert('todos', todo.toMap());
+  }
+
+  Future<void> addTask(TaskModel task) async {
+    final db = await database;
+    await db.insert('tasks', task.toMap());
   }
 
   Future<List<TodoModel>> getTodos() async {
@@ -51,6 +66,41 @@ class AppDatabase {
           checkBox: map['checkBox'] == 1,
         ),
     ];
+  }
+
+  Future<List<TaskModel>> getTask(TodoModel todo) async {
+    Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tasks',
+      orderBy: 'rowid DESC',
+      where: 'taskId = ?',
+      whereArgs: [todo.id]
+    );
+    return [
+      for (final map in maps)
+        TaskModel(
+          id: map['id'],
+          todoId: map['todoId'],
+          title: map['title'],
+          description: map['description'],
+          checkBox: map['checkBox'] == 1,
+        ),
+    ];
+  }
+
+  Future<int> deleteTasks(String id) async {
+    Database db = await database;
+    return await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> updateTasks(TaskModel task) async {
+    Database db = await database;
+    return await db.update(
+      'tasks',
+      task.toMap(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
   }
 
   Future<List<TodoModel>> getPaginatedTodos(int limit, int offset) async {

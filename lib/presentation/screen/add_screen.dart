@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:test1/models/todo_model.dart';
-import 'package:test1/presentation/bloc/todo_cubit.dart';
+import 'package:test1/presentation/bloc/todo_cubit/todo_cubit.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});

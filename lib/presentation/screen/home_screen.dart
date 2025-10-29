@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test1/data/database_helper.dart';
 import 'package:test1/models/todo_model.dart';
-import 'package:test1/presentation/bloc/todo_cubit.dart';
+import 'package:test1/presentation/bloc/task_cubit/task_cubit.dart';
+import 'package:test1/presentation/bloc/todo_cubit/todo_cubit.dart';
 import 'package:test1/presentation/screen/add_screen.dart';
+import 'package:test1/presentation/screen/detailed_screen.dart';
 import 'package:test1/presentation/widget/todo_item.dart';
 
 import 'edit_screen.dart';
@@ -48,13 +51,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (todo != null) {
-      context.read<TodoCubit>().updateNote(todo);
+      context.read<TodoCubit>().updateTodo(todo);
     }
   }
 
   void onCheck(item) {
     final todo = item.copyWith(checkBox: !item.checkBox);
-    context.read<TodoCubit>().updateNote(todo);
+    context.read<TodoCubit>().updateTodo(todo);
   }
 
   Future refresh() async {
@@ -134,10 +137,22 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: itemList.length + 1,
         itemBuilder: (context, index) {
           if (index < itemList.length) {
-            return TodoItem(
-              item: itemList[index],
-              onTapEdit: () => onEdit(itemList[index]),
-              onTapCheck: () => onCheck(itemList[index]),
+            return GestureDetector(
+              child: TodoItem(
+                item: itemList[index],
+                onTapEdit: () => onEdit(itemList[index]),
+                onTapCheck: () => onCheck(itemList[index]),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => TaskCubit(AppDatabase()),
+                      child: DetailedScreen(todo: itemList[index]),
+                    ),
+                  ),
+                );
+              },
             );
           }
           return null;

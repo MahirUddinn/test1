@@ -94,7 +94,7 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  void updateNote(TodoModel todo) async {
+  void updateTodo(TodoModel todo) async {
     try {
       int updatedId = await databaseHelper.updateTodos(todo);
       if (updatedId != 0) {
@@ -134,5 +134,4 @@ class TodoCubit extends Cubit<TodoState> {
       );
     }
   }
-
 }

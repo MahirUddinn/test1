@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test1/models/todo_model.dart';
-import 'package:test1/presentation/bloc/todo_cubit.dart';
+import 'package:test1/presentation/bloc/todo_cubit/todo_cubit.dart';
 
 class TodoItem extends StatelessWidget {
   final TodoModel item;
@@ -72,7 +72,7 @@ class TodoItem extends StatelessWidget {
                           date: item.date,
                           checkBox: !item.checkBox,
                         );
-                        context.read<TodoCubit>().updateNote(todo);
+                        context.read<TodoCubit>().updateTodo(todo);
                       },
                       icon: item.checkBox
                           ? Icon(Icons.check_box)
