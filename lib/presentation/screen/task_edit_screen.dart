@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:test1/models/task_model.dart';
-import 'package:test1/models/todo_model.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/presentation/bloc/task_cubit/task_cubit.dart';
 
-class TaskAddScreen extends StatefulWidget {
-  const TaskAddScreen({super.key, required this.todo});
-
-  final TodoModel todo;
-
+class TaskEditScreen extends StatefulWidget {
+  const TaskEditScreen({super.key, required this.task});
+  final TaskModel task;
   @override
-  State<TaskAddScreen> createState() => _TaskAddScreenState();
+  State<TaskEditScreen> createState() => _TaskEditScreenState();
 }
 
-class _TaskAddScreenState extends State<TaskAddScreen> {
+class _TaskEditScreenState extends State<TaskEditScreen> {
   final _textController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _textController.text = widget.task.title;
+    _descriptionController.text = widget.task.description;
+  }
 
   void submit() {
     if (_textController.text.trim().isEmpty) {
@@ -39,11 +41,11 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
       return;
     }
     final task = TaskModel(
-      id: Uuid().v4(),
-      todoId: widget.todo.id,
+      id: widget.task.id,
+      todoId: widget.task.todoId,
       title: _textController.text,
       description: _descriptionController.text,
-      checkBox: false,
+      checkBox: widget.task.checkBox,
     );
     Navigator.of(context).pop(task);
   }
@@ -58,7 +60,6 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-
       builder: (context, constraints) {
         return Container(
           height: double.infinity,
@@ -79,7 +80,7 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(onPressed: submit, child: Text("Add")),
+                  ElevatedButton(onPressed: submit, child: Text("Edit")),
                 ],
               ),
             ],

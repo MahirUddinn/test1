@@ -16,7 +16,7 @@ class AppDatabase {
 
   Future<Database> _initDB() async {
     String path = join(await getDatabasesPath(), 'todo.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -29,16 +29,20 @@ class AppDatabase {
         checkBox INTEGER
       )
     ''');
+
     await db.execute('''
       CREATE TABLE tasks(
         id TEXT PRIMARY KEY,
-        taskId TEXT,
+        todoId TEXT,
         title TEXT,
         description TEXT,
         checkBox INTEGER
       )
     ''');
   }
+
+
+
 
   Future<void> addTodo(TodoModel todo) async {
     final db = await database;
@@ -73,8 +77,8 @@ class AppDatabase {
     final List<Map<String, dynamic>> maps = await db.query(
       'tasks',
       orderBy: 'rowid DESC',
-      where: 'taskId = ?',
-      whereArgs: [todo.id]
+      where: 'todoId = ?',
+      whereArgs: [todo.id],
     );
     return [
       for (final map in maps)
@@ -141,8 +145,8 @@ class AppDatabase {
   Future<List<TodoModel>> getLastItem() async {
     final db = await database;
     final List<Map<String, dynamic>> results = await db.query(
-      'your_table_name',
-      orderBy: 'id DESC',
+      'todos',
+      orderBy: 'rowid DESC',
       limit: 1,
     );
 
@@ -156,5 +160,24 @@ class AppDatabase {
           checkBox: map['checkBox'] == 1,
         ),
     ];
+  }
+
+  Future<TodoModel?> getTodoById(String id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.query(
+      'todos',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (results.isEmpty) return null;
+    final map = results.first;
+    return TodoModel(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+      date: map['date'],
+      checkBox: map['checkBox'] == 1,
+    );
   }
 }

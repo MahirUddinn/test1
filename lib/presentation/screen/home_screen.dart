@@ -32,12 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _loadPaginatedData();
-      }
-    });
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _loadPaginatedData();
+    }
   }
 
   void onEdit(TodoModel item) async {
@@ -55,17 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void onCheck(item) {
-    final todo = item.copyWith(checkBox: !item.checkBox);
-    context.read<TodoCubit>().updateTodo(todo);
-  }
-
   Future refresh() async {
     context.read<TodoCubit>().loadTodos();
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -74,22 +68,29 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<TodoCubit, TodoState>(
       builder: (context, state) {
-        if (state.status == TodoStatus.loading) {
+        if (state.status == TodoStatus.loading && state.todos.isEmpty) {
           return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        if (state.status == TodoStatus.loaded) {
+
+        if (state.status == TodoStatus.error) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text("My ToDos"),
-              actions: [_buildReset(), _buildFilter()],
+            appBar: AppBar(title: Text("My ToDos")),
+            body: Center(
+              child: Text(state.errorMessage ?? "An error occurred"),
             ),
-            body: state.todos.isEmpty
-                ? Center(child: Text("No data found"))
-                : _buildList(state.todos),
-            floatingActionButton: _buildFloatingActionButton(),
           );
         }
-        return Container();
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("My ToDos"),
+            actions: [_buildReset(), _buildFilter()],
+          ),
+          body: state.todos.isEmpty
+              ? Center(child: Text("No data found"))
+              : _buildList(state.todos),
+          floatingActionButton: _buildFloatingActionButton(),
+        );
       },
     );
   }
@@ -108,12 +109,13 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () {
         context.read<TodoCubit>().filteredTodos();
       },
-      child: Text("Filter Checklist"),
+      child: Text("Toggle filter"),
     );
   }
 
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
+      heroTag: "btn1",
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       onPressed: () {
         Navigator.of(context).push(
@@ -134,28 +136,30 @@ class _HomeScreenState extends State<HomeScreen> {
       onRefresh: refresh,
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: itemList.length + 1,
+        itemCount: itemList.length,
         itemBuilder: (context, index) {
-          if (index < itemList.length) {
-            return GestureDetector(
-              child: TodoItem(
-                item: itemList[index],
-                onTapEdit: () => onEdit(itemList[index]),
-                onTapCheck: () => onCheck(itemList[index]),
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider(
-                      create: (context) => TaskCubit(AppDatabase()),
-                      child: DetailedScreen(todo: itemList[index]),
+          return GestureDetector(
+            child: TodoItem(
+              item: itemList[index],
+              onTapEdit: () => onEdit(itemList[index]),
+            ),
+            onTap: () async {
+              final result = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => BlocProvider.value(
+                    value: BlocProvider.of<TaskCubit>(context),
+                    child: DetailedScreen(
+                      todo: itemList[index],
+                      onTodoCheck: () {
+                        context.read<TodoCubit>().loadTodos();
+                      },
                     ),
                   ),
-                );
-              },
-            );
-          }
-          return null;
+                ),
+              );
+              context.read<TodoCubit>().loadTodos();
+            },
+          );
         },
       ),
     );
