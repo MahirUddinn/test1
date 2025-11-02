@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:test1/models/task_model.dart';
 import 'package:test1/models/todo_model.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/presentation/bloc/task_cubit/task_cubit.dart';
 
 class TaskAddScreen extends StatefulWidget {
   const TaskAddScreen({super.key, required this.todo});
@@ -16,7 +14,6 @@ class TaskAddScreen extends StatefulWidget {
 
 class _TaskAddScreenState extends State<TaskAddScreen> {
   final _textController = TextEditingController();
-  final _descriptionController = TextEditingController();
 
   void submit() {
     if (_textController.text.trim().isEmpty) {
@@ -42,7 +39,6 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
       id: Uuid().v4(),
       todoId: widget.todo.id,
       title: _textController.text,
-      description: _descriptionController.text,
       checkBox: false,
     );
     Navigator.of(context).pop(task);
@@ -51,7 +47,6 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
   @override
   void dispose() {
     _textController.dispose();
-    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -60,29 +55,27 @@ class _TaskAddScreenState extends State<TaskAddScreen> {
     return LayoutBuilder(
 
       builder: (context, constraints) {
-        return Container(
-          height: double.infinity,
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _textController,
-                maxLength: 50,
-                decoration: const InputDecoration(label: Text("Title")),
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                maxLength: 100,
-                decoration: const InputDecoration(label: Text("Description")),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(onPressed: submit, child: Text("Add")),
-                ],
-              ),
-            ],
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _textController,
+                  maxLength: 50,
+                  decoration: const InputDecoration(label: Text("Title")),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(onPressed: submit, child: Text("Add")),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test1/data/database_helper.dart';
 import 'package:test1/models/todo_model.dart';
 import 'package:test1/presentation/bloc/task_cubit/task_cubit.dart';
 import 'package:test1/presentation/bloc/todo_cubit/todo_cubit.dart';
@@ -69,12 +68,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<TodoCubit, TodoState>(
       builder: (context, state) {
         if (state.status == TodoStatus.loading && state.todos.isEmpty) {
-          return Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (state.status == TodoStatus.error) {
           return Scaffold(
-            appBar: AppBar(title: Text("My ToDos")),
+            appBar: AppBar(title: const Text("My ToDos")),
             body: Center(
               child: Text(state.errorMessage ?? "An error occurred"),
             ),
@@ -83,11 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text("My ToDos"),
-            actions: [_buildReset(), _buildFilter()],
+            title: const Text("My ToDos"),
+            actions: [_buildFilter(), _buildReset()],
           ),
           body: state.todos.isEmpty
-              ? Center(child: Text("No data found"))
+              ? _buildEmptyState(context)
               : _buildList(state.todos),
           floatingActionButton: _buildFloatingActionButton(),
         );
@@ -95,39 +96,60 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.inbox_outlined, size: 80, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            "No To-Dos Found",
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Tap the '+' button to add your first To-Do.",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReset() {
-    return TextButton(
+    return IconButton(
+      icon: const Icon(Icons.refresh),
       onPressed: () {
         context.read<TodoCubit>().loadTodos();
       },
-      child: Text("Reset"),
     );
   }
 
   Widget _buildFilter() {
-    return ElevatedButton(
+    return IconButton(
+      icon: const Icon(Icons.filter_list),
       onPressed: () {
         context.read<TodoCubit>().filteredTodos();
       },
-      child: Text("Toggle filter"),
     );
   }
 
   Widget _buildFloatingActionButton() {
     return FloatingActionButton(
       heroTag: "btn1",
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      child: const Icon(Icons.add),
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) => BlocProvider.value(
               value: context.read<TodoCubit>(),
-              child: AddScreen(),
+              child: const AddScreen(),
             ),
           ),
         );
       },
-      child: Icon(Icons.add),
     );
   }
 
@@ -135,14 +157,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         itemCount: itemList.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            child: TodoItem(
-              item: itemList[index],
-              onTapEdit: () => onEdit(itemList[index]),
-            ),
+          return TodoItem(
+            item: itemList[index],
+            onTapEdit: () => onEdit(itemList[index]),
             onTap: () async {
               final result = await Navigator.of(context).push(
                 MaterialPageRoute(

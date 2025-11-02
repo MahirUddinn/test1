@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test1/models/task_model.dart';
 import 'package:test1/presentation/bloc/task_cubit/task_cubit.dart';
-import 'package:test1/presentation/screen/task_add_screen.dart';
 
 class TaskItem extends StatelessWidget {
   const TaskItem({
@@ -18,41 +17,49 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Dismissible(
       key: ValueKey(task.id),
       onDismissed: (direction) {
         context.read<TaskCubit>().deleteTasks(task.id);
       },
       background: Container(
-        color: Colors.red,
+        color: colorScheme.error,
         alignment: Alignment.centerRight,
-        padding: EdgeInsets.only(right: 20.0),
-        child: Icon(Icons.delete, color: Colors.white),
+        padding: const EdgeInsets.only(right: 20.0),
+        child: Icon(Icons.delete, color: colorScheme.onError),
       ),
-      child: Container(
-        margin: EdgeInsets.all(5),
-        padding: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: task.checkBox ? Color(0xFF81C784) : Color(0xFFB0BEC5),
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: onCheck,
-              icon: Icon(
-                task.checkBox ? Icons.check_box : Icons.check_box_outline_blank,
-                size: 30,
-              ),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        color: task.checkBox
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.tertiaryContainer,
+        elevation: task.checkBox ? 0 : 1,
+        child: ListTile(
+          leading: IconButton(
+            icon: Icon(
+              task.checkBox ? Icons.check_box : Icons.check_box_outline_blank,
+              color: task.checkBox
+                  ? Colors.blueAccent
+                  : colorScheme.onSurfaceVariant,
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text(task.title), Text(task.description)],
-              ),
+            onPressed: onCheck,
+          ),
+          title: Text(
+            task.title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              decoration: task.checkBox ? TextDecoration.lineThrough : null,
+              color: task.checkBox
+                  ? theme.textTheme.bodySmall?.color
+                  : theme.textTheme.bodyLarge?.color,
             ),
-            IconButton(onPressed: onEdit, icon: Icon(Icons.edit)),
-          ],
+          ),
+          trailing: IconButton(
+            icon: Icon(Icons.edit, color: colorScheme.secondary),
+            onPressed: onEdit,
+          ),
         ),
       ),
     );

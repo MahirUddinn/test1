@@ -28,30 +28,29 @@ class _DetailedScreenState extends State<DetailedScreen> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
-        widget.onTodoCheck;
         return TaskAddScreen(todo: widget.todo);
       },
     );
 
     if (task != null) {
-      widget.onTodoCheck;
+      widget.onTodoCheck();
       context.read<TaskCubit>().addTasks(task);
     }
   }
-  
-  void openEditScreen(TaskModel editTask)async{
+
+  void openEditScreen(TaskModel editTask) async {
     final task = await showModalBottomSheet(
       useSafeArea: true,
       context: context,
       isScrollControlled: true,
+
       builder: (context) {
-        widget.onTodoCheck;
         return TaskEditScreen(task: editTask);
       },
     );
 
     if (task != null) {
-      widget.onTodoCheck;
+      widget.onTodoCheck();
       context.read<TaskCubit>().updateTask(task);
     }
   }
@@ -70,24 +69,36 @@ class _DetailedScreenState extends State<DetailedScreen> {
       appBar: AppBar(title: Text(todo.title)),
       floatingActionButton: FloatingActionButton(
         heroTag: "btn2",
+        child: const Icon(Icons.add),
         onPressed: () {
           openBottomModal();
         },
-        child: Icon(Icons.add),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDescription(todo),
-          SizedBox(height: 10),
+          _buildDescription(context, todo),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text("Tasks", style: Theme.of(context).textTheme.titleLarge),
+          ),
           BlocBuilder<TaskCubit, TaskState>(
             builder: (context, state) {
               if (state.status == TaskStatus.loading && state.tasks.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                );
               }
               if (state.status == TaskStatus.error) {
-                return Center(child: Text(state.errorMessage!));
+                return Expanded(
+                  child: Center(child: Text(state.errorMessage!)),
+                );
               }
-              return Expanded(child: _buildTaskList(state.tasks));
+              return Expanded(child: _buildTaskList(context, state.tasks));
             },
           ),
         ],
@@ -95,11 +106,33 @@ class _DetailedScreenState extends State<DetailedScreen> {
     );
   }
 
-  _buildTaskList(List<TaskModel> tasks) {
+  Widget _buildTaskList(BuildContext context, List<TaskModel> tasks) {
     if (tasks.isEmpty) {
-      return const Center(child: Text("No tasks yet"));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.check_box_outline_blank,
+              size: 60,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "No tasks yet",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Add a task to get started.",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      );
     }
     return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 80.0),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         return TaskItem(
@@ -110,7 +143,6 @@ class _DetailedScreenState extends State<DetailedScreen> {
                 id: tasks[index].id,
                 todoId: tasks[index].todoId,
                 title: tasks[index].title,
-                description: tasks[index].description,
                 checkBox: !tasks[index].checkBox,
               ),
             );
@@ -124,16 +156,40 @@ class _DetailedScreenState extends State<DetailedScreen> {
     );
   }
 
-  _buildDescription(TodoModel todo) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(10),
-      child: Center(
-        child: Text(
-          todo.description.isEmpty
-              ? "No description was added for this todo"
-              : todo.description,
-        ),
+  Widget _buildDescription(BuildContext context, TodoModel todo) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Description",
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.blueAccent,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              todo.description.isEmpty
+                  ? "No description was added for this todo."
+                  : todo.description,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontStyle: todo.description.isEmpty
+                    ? FontStyle.italic
+                    : FontStyle.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

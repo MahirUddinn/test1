@@ -35,12 +35,10 @@ class AppDatabase {
         id TEXT PRIMARY KEY,
         todoId TEXT,
         title TEXT,
-        description TEXT,
         checkBox INTEGER
       )
     ''');
   }
-
 
 
 
@@ -86,7 +84,6 @@ class AppDatabase {
           id: map['id'],
           todoId: map['todoId'],
           title: map['title'],
-          description: map['description'],
           checkBox: map['checkBox'] == 1,
         ),
     ];

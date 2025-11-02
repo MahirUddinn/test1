@@ -11,13 +11,11 @@ class TaskEditScreen extends StatefulWidget {
 
 class _TaskEditScreenState extends State<TaskEditScreen> {
   final _textController = TextEditingController();
-  final _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _textController.text = widget.task.title;
-    _descriptionController.text = widget.task.description;
   }
 
   void submit() {
@@ -44,7 +42,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       id: widget.task.id,
       todoId: widget.task.todoId,
       title: _textController.text,
-      description: _descriptionController.text,
       checkBox: widget.task.checkBox,
     );
     Navigator.of(context).pop(task);
@@ -53,7 +50,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   @override
   void dispose() {
     _textController.dispose();
-    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -61,29 +57,27 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          height: double.infinity,
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _textController,
-                maxLength: 50,
-                decoration: const InputDecoration(label: Text("Title")),
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                maxLength: 100,
-                decoration: const InputDecoration(label: Text("Description")),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(onPressed: submit, child: Text("Edit")),
-                ],
-              ),
-            ],
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _textController,
+                  maxLength: 50,
+                  decoration: const InputDecoration(label: Text("Title")),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(onPressed: submit, child: Text("Edit")),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
